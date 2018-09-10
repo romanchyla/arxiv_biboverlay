@@ -1,0 +1,4 @@
+
+[run]
+source = abovl
+omit = abovl/tests*
