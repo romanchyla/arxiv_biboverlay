@@ -15,7 +15,12 @@ class OAuthClient(Base):
     id = sa.Column(sa.Integer, primary_key=True)
     token = sa.Column(sa.String(40))
     client_id = sa.Column(sa.String(40))
+    client_secret = sa.Column(sa.String(40))
+    refresh_token = sa.Column(sa.String(40))
+    expire_in = sa.Column(UTCDateTime)
     created = sa.Column(UTCDateTime, default=get_date)
+    scopes = sa.Text()
+    username = sa.Column(sa.String(512))
     
     def toJSON(self):
         """Returns value formatted as python dict. Oftentimes
@@ -25,5 +30,11 @@ class OAuthClient(Base):
             'id': self.id,
             'token': self.token,
             'client_id': self.client_id,
-            'created': self.created and self.created.isoformat() or None
+            'client_secret': self.client_secret,
+            'refresh_token': self.refresh_token,
+            'scopes': self.scopes,
+            'username': self.username,
+            
+            'created': self.created and self.created.isoformat() or None,
+            'expire_in': self.expire_in and self.expire_in.isoformat() or None
         }

@@ -28,14 +28,6 @@ class TestServices(TestCase):
         unittest.TestCase.tearDown(self)
         Base.metadata.drop_all()
         self.app.db = None
-
-
-    def test_date(self):
-        # if you want to know the urls: print self.app.url_map
-        
-        r = self.client.get(url_for('abovl.token'))
-        self.assertEqual(r.status_code,200)
-        print r.json
         
     
         

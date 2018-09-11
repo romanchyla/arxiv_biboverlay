@@ -4,6 +4,7 @@
 from adsmutils import ADSFlask, get_date
 from views import bp
 from abovl.models import OAuthClient
+from flask.ext.session import Session
 
 def create_app(**config):
     """
@@ -14,6 +15,10 @@ def create_app(**config):
     app = AbovlADSFlask('arxiv_biboverlay', local_config=config)
     app.url_map.strict_slashes = False    
     app.register_blueprint(bp)
+    
+    sess = Session()
+    sess.init_app(app) 
+    
     return app
 
 
@@ -35,10 +40,45 @@ class AbovlADSFlask(ADSFlask):
             if t:
                 return t.toJSON()
             
+    def delete_client(self, cid):
+        with self.session_scope() as session:
+            session.query(OAuthClient).filter_by(id=cid).delete()
+            session.commit()
+            
+    
+    def verify_token(self, token):
+        url = '{}/v1/protected'.format(self.config.get('API_URL'))
+        r = self.client.get(url, headers={'Authorization': 'Bearer {}'.format(token)})
+        return r.status_code == 200 #TODO: we could also handle refresh in the future
+    
     
     def create_client(self):
         """Calls ADS api and gets a new OAuth application
             registered."""
         
-        url = '{}/v1/user/token'.format(self.config.get('API_URL'))
-        self.client.get(url)
+        url = '{}/v1/bootstrap'.format(self.config.get('API_URL'))
+        
+        counter = 0
+        with self.session_scope() as session:
+            counter = session.query(OAuthClient).count() # or we could simply use UUID
+            
+        kwargs = {
+            'name': '{}:{}'.format(self.config.get('CLIENT_NAME_PREFIX', 'OAuth application'), counter+1),
+            'scopes': self.config.get('CLIENT_SCOPES', None),
+            'redirect_uri': self.config.get('CLIENT_REDIRECT_URI', None)  
+        }
+        
+        r = self.client.put(url, params=kwargs)
+        
+        if r.status_code == 200:
+            j = r.json()
+            with self.session_scope() as session:
+                c = OAuthClient(client_id=j['client_id'], client_secret=j['client_secret'],
+                                token=j['access_token'], refresh_token=j['refresh_token'],
+                                expire_in=j['expire_in'], scopes=j['scopes'],
+                                username=j['username'])
+                session.add(c)
+                session.commit()
+                return c.toJSON()
+        else:
+            self.logger.error('Unexpected response for %s (%s): %s', url, kwargs, r.raw)

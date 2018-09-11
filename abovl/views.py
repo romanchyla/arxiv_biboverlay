@@ -1,6 +1,7 @@
 
-from flask import current_app, request, Blueprint, jsonify
+from flask import current_app, request, Blueprint, jsonify, session
 import json
+from abovl.models import OAuthClient
 
 bp = Blueprint('abovl', __name__)
 
@@ -15,18 +16,29 @@ def token(date=None):
     """
 
     resp = current_app.make_response(staus=200, mimetype='application/json')
+    token = session.get('token', None)
+    client = None
     
-    token = request.cookies.get('token')
+    if token:
+        client = current_app.load_client(token)
     
-    # verify it was created by us
-    t = current_app.load_client(token)
-    
-    # if not, obtain a new token
-    if t is not None:
-        t = current_app.create_client()
-        current_app.logger.info('Create a new OAuth Client/Token: {}', t)
-    
-    resp.response = json.dumps(t)
-    resp.set_cookie('token', token)
-    return resp        
+    # verify it is still working
+    if client is not None:
+        current_app.logger.debug('Loaded client based on a cookie: %s', client)
+        
+        if not current_app.verify_token(client['token']):
+            current_app.delete_client(client['id'])
+            current_app.logger.info('Deleted client (token no longer valid): %s', client)
+            client = None
+        
+    # if all else failed, create  a new application
+    if client is None:
+        client = current_app.create_client()
+        current_app.logger.info('Created a new OAuth Client/Token: {}', client)
+
+    # set the coookie to be able to provide the same clients with the existing token
+    session['token'] = client['token']
+         
+    # only return some info (don't want to expose client_secret in particular)
+    return jsonify({'token': client['token'], 'expire_in': client['expire_in'], 'scopes': client['scopres']}), 200
 
