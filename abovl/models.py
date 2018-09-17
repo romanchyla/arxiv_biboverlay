@@ -19,7 +19,7 @@ class OAuthClient(Base):
     refresh_token = sa.Column(sa.String(40))
     expire_in = sa.Column(UTCDateTime)
     created = sa.Column(UTCDateTime, default=get_date)
-    scopes = sa.Text()
+    scopes = sa.Column(sa.Text())
     username = sa.Column(sa.String(512))
     
     def toJSON(self):

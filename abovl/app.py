@@ -64,18 +64,19 @@ class AbovlADSFlask(ADSFlask):
             
         kwargs = {
             'name': '{}:{}'.format(self.config.get('CLIENT_NAME_PREFIX', 'OAuth application'), counter+1),
-            'scopes': self.config.get('CLIENT_SCOPES', None),
-            'redirect_uri': self.config.get('CLIENT_REDIRECT_URI', None)  
+            'scopes': ' '.join(self.config.get('CLIENT_SCOPES', []) or []),
+            'redirect_uri': self.config.get('CLIENT_REDIRECT_URI', None),
+            'create_new': True
         }
         
-        r = self.client.put(url, params=kwargs)
+        r = self.client.get(url, params=kwargs)
         
         if r.status_code == 200:
             j = r.json()
             with self.session_scope() as session:
                 c = OAuthClient(client_id=j['client_id'], client_secret=j['client_secret'],
                                 token=j['access_token'], refresh_token=j['refresh_token'],
-                                expire_in=j['expire_in'], scopes=j['scopes'],
+                                expire_in=j['expire_in'], scopes=' '.join(j['scopes'] or []),
                                 username=j['username'])
                 session.add(c)
                 session.commit()

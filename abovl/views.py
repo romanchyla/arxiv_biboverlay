@@ -8,14 +8,13 @@ bp = Blueprint('abovl', __name__)
 
 
 @bp.route('/token', methods=['GET'])
-def token(date=None):
+def token():
     """Will either create a new OAuth token
             - subordinate to the API_TOKEN
        Or retrieve stored token
            - based on a cookie
     """
 
-    resp = current_app.make_response(staus=200, mimetype='application/json')
     token = session.get('token', None)
     client = None
     
@@ -40,5 +39,5 @@ def token(date=None):
     session['token'] = client['token']
          
     # only return some info (don't want to expose client_secret in particular)
-    return jsonify({'token': client['token'], 'expire_in': client['expire_in'], 'scopes': client['scopres']}), 200
+    return jsonify({'token': client['token'], 'expire_in': client['expire_in'], 'scopes': client['scopes']}), 200
 
