@@ -66,7 +66,8 @@ class AbovlADSFlask(ADSFlask):
             'name': '{}:{}'.format(self.config.get('CLIENT_NAME_PREFIX', 'OAuth application'), counter+1),
             'scopes': ' '.join(self.config.get('CLIENT_SCOPES', []) or []),
             'redirect_uri': self.config.get('CLIENT_REDIRECT_URI', None),
-            'create_new': True
+            'create_new': True,
+            'ratelimit': self.config.get('CLIENT_RATELIMIT', 1.0)
         }
         
         r = self.client.get(url, params=kwargs)

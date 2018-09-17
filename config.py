@@ -4,6 +4,14 @@ SQLALCHEMY_DATABASE_URI = 'sqlite://'
 API_TOKEN = 'this is a secret api token!'
 API_URL = 'https://api.adsabs.harvard.edu'
 
+# ratio of the normal ratelimit that should be available to the
+# newly created clients (e.g. .1 will give the new client 10% of
+# normal ratelimits available at ADS). This setting may be important
+# because each user account only has limited capacity. For example,
+# if your user account has global ratelimit of 100, you can create
+# 100 / 0.1 = 1000 sub-clients
+CLIENT_RATELIMIT = 0.1
+
 # Flask key used to sign cookies and to salt db entries
 SECRET_KEY = 'change me'
 

@@ -13,5 +13,10 @@ OAuth token that are subordinate to the main Arxiv OAuth client.
 
     `curl somewhere.com/token`
     
-    The output will contain a new OAuth token. If we provide also a cookie, the 
-    same token will be returned (without creating a new one).
+    The output will contain a new OAuth token and a cookie will be set. 
+    
+    If the browser/client sends the same cookie with the next request, 
+    the system will return the same token (after having verified it still
+    works; if verification fails a new token will be created).
+    
+    Without the cookie, a new token will be created every time.

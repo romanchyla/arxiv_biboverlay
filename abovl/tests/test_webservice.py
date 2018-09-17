@@ -36,7 +36,7 @@ class TestServices(TestCase):
                      u'client_name': u'BB client',
                      u'client_secret': u'LqA08B1gK5yNG0EFcJqoJNNDFNwtLUYmvyFWQA37Dw6swnhlMKo5giTSw0oz',
                      u'expire_in': u'2500-01-01T00:00:00',
-                     u'ratelimit': 0.5,
+                     u'ratelimit': 0.1,
                      u'refresh_token': u'ElG2GALhdNGJSqsCXgebuRUfCn3aERzzciESIPO5',
                      u'scopes': [u'user'],
                      u'token_type': u'Bearer',
