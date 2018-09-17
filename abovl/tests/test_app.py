@@ -40,7 +40,7 @@ class TestCase(unittest.TestCase):
           "token_type": "Bearer", 
           "expire_in": "2050-01-01T00:00:00", 
           "refresh_token": "refreshfoo",
-          "scopes": "api execute-query store-query",
+          "scopes": ["api", "execute-query", "store-query"],
           "client_id": "abcd",
           "client_secret": "clientsecret"
         }
@@ -48,7 +48,7 @@ class TestCase(unittest.TestCase):
         r.text = str(data)
         r.json = lambda: data
         r.status_code = 200
-        with mock.patch.object(self.app.client, 'put', return_value=r) as client:
+        with mock.patch.object(self.app.client, 'get', return_value=r) as client:
             c = self.app.create_client()
             self.assertDictContainsSubset({'username': u'foo.bar@gmail.com', 
                                               'scopes': 'api execute-query store-query', 
