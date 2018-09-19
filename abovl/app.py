@@ -47,7 +47,7 @@ class AbovlADSFlask(ADSFlask):
             
     
     def verify_token(self, token):
-        url = '{}/v1/protected'.format(self.config.get('API_URL'))
+        url = '{}/{}'.format(self.config.get('API_URL'), self.config.get('PROTECTED_ENDPOINT', 'v1/accounts/protected'))
         r = self.client.get(url, headers={'Authorization': 'Bearer {}'.format(token)})
         return r.status_code == 200 #TODO: we could also handle refresh in the future
     
@@ -56,7 +56,7 @@ class AbovlADSFlask(ADSFlask):
         """Calls ADS api and gets a new OAuth application
             registered."""
         
-        url = '{}/v1/bootstrap'.format(self.config.get('API_URL'))
+        url = '{}/{}'.format(self.config.get('API_URL'), self.config.get('BOOTSTRAP_ENDPOINT', 'v1/accounts/bootstrap'))
         
         counter = 0
         with self.session_scope() as session:
@@ -78,9 +78,9 @@ class AbovlADSFlask(ADSFlask):
                 c = OAuthClient(client_id=j['client_id'], client_secret=j['client_secret'],
                                 token=j['access_token'], refresh_token=j['refresh_token'],
                                 expire_in=j['expire_in'], scopes=' '.join(j['scopes'] or []),
-                                username=j['username'])
+                                username=j['username'], ratelimit=j['ratelimit'])
                 session.add(c)
                 session.commit()
                 return c.toJSON()
         else:
-            self.logger.error('Unexpected response for %s (%s): %s', url, kwargs, r.raw)
+            self.logger.error('Unexpected response for %s (%s): %s', url, kwargs, r.text)

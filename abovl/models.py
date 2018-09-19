@@ -21,6 +21,7 @@ class OAuthClient(Base):
     created = sa.Column(UTCDateTime, default=get_date)
     scopes = sa.Column(sa.Text())
     username = sa.Column(sa.String(512))
+    ratelimit = sa.Column(sa.Float())
     
     def toJSON(self):
         """Returns value formatted as python dict. Oftentimes
@@ -34,7 +35,7 @@ class OAuthClient(Base):
             'refresh_token': self.refresh_token,
             'scopes': self.scopes,
             'username': self.username,
-            
+            'ratelimit': self.ratelimit,
             'created': self.created and self.created.isoformat() or None,
             'expire_in': self.expire_in and self.expire_in.isoformat() or None
         }

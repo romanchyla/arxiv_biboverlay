@@ -35,9 +35,13 @@ def token():
         client = current_app.create_client()
         current_app.logger.info('Created a new OAuth Client/Token: {}', client)
 
+    if not client:
+        return jsonify({'error': 'Error creating new OAuth application.'}), 500
+    
     # set the coookie to be able to provide the same clients with the existing token
     session['token'] = client['token']
          
     # only return some info (don't want to expose client_secret in particular)
-    return jsonify({'token': client['token'], 'expire_in': client['expire_in'], 'scopes': client['scopes']}), 200
+    return jsonify({'token': client['token'], 'expire_in': client['expire_in'], 
+                    'scopes': client['scopes'], 'ratelimit': client['ratelimit']}), 200
 

@@ -13,15 +13,21 @@ down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
-from adsmutils import get_date
+from adsmutils import get_date, UTCDateTime
 
 
 def upgrade():
     op.create_table('oauth_client',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('token', sa.String(length=40)),
+        sa.Column('refresh_token', sa.String(length=40)),
         sa.Column('client_id', sa.String(length=40)),
-        sa.Column('created', TIMESTAMP, default=get_date),
+        sa.Column('client_secret', sa.String(length=40)),
+        sa.Column('ratelimit', sa.Float()),
+        sa.Column('expire_in', UTCDateTime),
+        sa.Column('created', UTCDateTime, default=get_date),
+        sa.Column('scopes', sa.Text()),
+        sa.Column('username', sa.String(length=512)),
         
         sa.Index('ix_token', 'token')
     )
