@@ -42,7 +42,8 @@ class TestCase(unittest.TestCase):
           "refresh_token": "refreshfoo",
           "scopes": ["api", "execute-query", "store-query"],
           "client_id": "abcd",
-          "client_secret": "clientsecret"
+          "client_secret": "clientsecret",
+          "ratelimit": 1.0
         }
         r = PropertyMock()
         r.text = str(data)
